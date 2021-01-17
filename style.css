@@ -1,0 +1,38 @@
+body {
+  background: #bada55;
+  margin: 3em;
+  text-align: center;
+}
+
+input[type="text"] {
+  border: 0;
+  padding: 0.5em;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+input[type="text"]:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+aside {
+  position: fixed;
+  top: 2em;
+  right: 2em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+aside div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.5em;
+}
+
+aside p {
+  margin: 0;
+  padding: 0.1em;
+  border-bottom: 1px solid black;
+  text-align: center;
+}
