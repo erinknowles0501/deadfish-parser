@@ -10,72 +10,56 @@ deadfishInput.addEventListener("input", captureInput);
 function captureInput() {
   let val = deadfishInput.value;
   let char = val.slice(-1);
-  console.log(char);
-  deadfishOutput.innerHTML = parseToDeadfish(val);
+  //console.log(char);
+  deadfishOutput.innerHTML = parseToDeadfish(
+    char,
+    val,
+    mainOutput,
+    mainCurrentVal
+  );
 }
 
-const functions = {
-  inc(v) {
-    return v + 1;
-  },
-  dec(v) {
-    return v - 1;
-  },
-  square(v) {
-    return v * v;
-  },
-  multiply(v, i) {
-    return v * i;
-  },
-  reset(v) {
-    return 0;
-  },
-};
+let mainOutput = [];
+let mainCurrentVal = 0;
 
-const POSSIBLE_COMMANDS = {
-  INCREMENT: "i",
-  DECREMENT: "d",
-  SQUARE: "s",
-  OUTPUT: "o",
-  // ROOT: 'r',
-  MULTIPLY: "m",
-  RESET: "c",
-};
+function parseToDeadfish(char, val = null, output = null, currentVal) {
+  if (char == POSSIBLE_COMMANDS.OUTPUT) {
+    output.push(currentVal);
+    return output;
+  }
 
-const commands = new Map();
-commands.set(POSSIBLE_COMMANDS.INCREMENT, functions.inc);
-commands.set(POSSIBLE_COMMANDS.DECREMENT, functions.dec);
-commands.set(POSSIBLE_COMMANDS.SQUARE, functions.square);
-commands.set(POSSIBLE_COMMANDS.MULTIPLY, functions.multiply);
-commands.set(POSSIBLE_COMMANDS.RESET, functions.reset);
+  if (commands.get(char) == undefined) {
+    return;
+  }
 
-// Return the output array, and ignore all non-op characters
-function parseToDeadfish(chars) {
-  let output = [];
-  let currentVal = 0;
-  [...chars].forEach((c) => {
-    if (c == POSSIBLE_COMMANDS.OUTPUT) {
-      output.push(currentVal);
-      return;
+  if (char == POSSIBLE_COMMANDS.MULTIPLY) {
+    // check if number of 'm's is even (ie a 'sequence' has just finished)
+    if (val.match(/m/g || []).length % 2 == 0) {
+      // get characters up to previous 'm' (ignoring most recent m)
+      lastMIndex = val.slice(0, -1).lastIndexOf("m");
+      charsToEval = val.slice(lastMIndex + 1, -1);
+
+      // ignore output command
+      charsToEval = charsToEval.replace(POSSIBLE_COMMANDS.OUTPUT, "");
+
+      let multCount = 0;
+      // evaluate
+      let valToMult = [...charsToEval].reduce((acc, multChar) => {
+        return acc + parseToDeadfish(multChar, null, null, multCount);
+      }, 0);
+
+      // call multiply(currentVal, valToMult);
+      console.log("currentval", currentVal);
+      output = commands.get(POSSIBLE_COMMANDS.MULTIPLY)(currentVal, valToMult);
+      return output;
     }
+    return;
+  }
 
-    if (commands.get(c) == undefined) {
-      return;
-    }
-
-    if (c == POSSIBLE_COMMANDS.MULTIPLY) {
-      console.log("m");
-
-      // check if number of 'm's is odd
-      // if it is, start separate count
-      // if ms is even! call multiply(currentVal, multCount);
-      return;
-    }
-
-    currentVal = commands.get(c)(currentVal);
-  });
+  currentVal = commands.get(char)(currentVal);
+  console.log("currentval outside", currentVal);
 
   //TODO: refactor this. Shouldn't happen in this function.
   currentValueOutput.innerHTML = currentVal;
-  return output;
+  return output || currentVal;
 }
